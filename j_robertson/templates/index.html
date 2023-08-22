@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Crime Data Visualization</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.25.2.min.js" charset="utf-8"></script>
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+        <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    
+  </head>
+
+  <body>
+    <div class="chart-container">
+      <h2> Crime by Month</h2>
+      <label for="year">Select Year</label>
+      <select id="year">
+        <option value="2014">2014</option>
+        <option value="2015">2015</option>
+        <option value="2016">2016</option>
+        <option value="2017">2017</option>
+        <option value="2018">2018</option>
+        <option value="2019">2019</option>
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+      </select>
+      <div id="line1">
+        <canvas id="line1Canvas"></canvas>
+      </div>
+    </div>
+    <script src="/static/js/chart1.js"></script>
+  </body>
+</html>
