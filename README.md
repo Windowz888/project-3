@@ -36,7 +36,7 @@ pip install flask psycopg2 python-dotenv numpy
 Configure Database Connection
 To securely connect to the database, create a .env file in the root directory of the project.
 Add your database configuration details in the .env file. For security reasons, do not expose sensitive details like passwords in public documents or version control. Instead, use placeholders and provide actual values only in the local .env file.
-Example .env structure:
+Example .env structure: /n
 
 makefile
 Copy code
