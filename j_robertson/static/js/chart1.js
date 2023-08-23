@@ -1,115 +1,252 @@
-const ct3 = document.getElementById('line1Canvas').getContext('2d')
+let url = `/api/monthly_crime_rate/`
 
-const labels = ["January","February","March","April","May","June","July", "August", "September", "October", "November", "December"]
+function init(){
+    dropDown = d3.select("#selDataset");
+    let year = 2014;
+    console.log(url)
+    d3.json(url+year).then((data)=>{
+        console.log(data);
+        let years = [2014,2015,2016,2017,2018,2019,2020,2021,2022];
 
-const colors = {
-    'Assault': {
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255, 99, 132, 1)'
-    },
-    'Break and Enter': {
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)'
-    },
-    'Robbery': {
-        backgroundColor: 'rgba(255, 206, 86, 0.2)',
-        borderColor: 'rgba(255, 206, 86, 1)'
-    },
-    'Auto Theft': {
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)'
-    },
-    'Theft Over': {
-        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-        borderColor: 'rgba(153, 102, 255, 1)'
-    }
+        years.forEach(year =>
+            dropDown.append("option")
+            .text(year)
+            .property("value",year))
+        
+        console.log(years)
+        let sampleOne = years[0];
+        buildLineChart(sampleOne)
+        buildPieChart(sampleOne)
+    })
 };
 
-
-const myChart = new Chart(ct3, {
-    data: {
-        datasets: [{type:"line",
-        data: [],
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 2,
-        fill: false,}],
-        labels: labels
-    }
-});
-
-
-
-document.getElementById('year').addEventListener('change', function(event) {
-    const year = event.target.value;
-    console.log("Selected year:", year); 
-    fetch(`/api/monthly_crime_rate/${year}`)
-        .then(response => response.json())
-        .then(data => {
-            function sorting(a, b) {
-                if (a.year !== b.year) {
-                  return a.mci_category - b.mci_category;
-                } else {
-                  const monthToNumber = {
-                    "January": 1,
-                    "February": 2,
-                    "March": 3,
-                    "April": 4,
-                    "May": 5,
-                    "June": 6,
-                    "July": 7,
-                    "August": 8,
-                    "September": 9,
-                    "October": 10,
-                    "November": 11,
-                    "December": 12
-                  };
-                  return monthToNumber[a.month] - monthToNumber[b.month];
+function buildLineChart(sample){
+    d3.json(url + sample).then((data)=>{
+        function sorting(a, b) {
+            if (a.year !== b.year) {
+                return a.mci_category - b.mci_category;
+            } else {
+                const monthToNumber = {
+                "January": 1,
+                "February": 2,
+                "March": 3,
+                "April": 4,
+                "May": 5,
+                "June": 6,
+                "July": 7,
+                "August": 8,
+                "September": 9,
+                "October": 10,
+                "November": 11,
+                "December": 12
                 };
+                return monthToNumber[a.month] - monthToNumber[b.month];
             };
-            data.sort(sorting);
-            console.log(data)
-            let months = ["January","February","March","April","May","June","July", "August", "September", "October", "November", "December"]
-            let crimes = {}
-            const offenseTypes = [...new Set(data.map(item => item.mci_category))];
-
-            offenseTypes.forEach(crime => {
-                crimes[crime]= [];
-                let filter1= data.filter(result => result.mci_category == crime);
-                months.forEach(month => {
-                    let filter2 = filter1.filter(result => result.month == month);
-                    crimes[crime].push(filter2.length)
-                })
-            } )
-            
-            let info = []
-            console.log(crimes)
-            const newDataSets = []
-            
-            for(let i = 0; i < crimes.length; i++){
-                info.push(crimes[i])
-                console.log(info)
-                let charting = {
-                    type: 'line',
-                    label: offenseTypes[i],
-                    data: info[i],
-                    backgroundColor: colors[offenseTypes[i]].backgroundColor,
-                    borderColor: colors[offenseTypes[i]].borderColor,
-                    borderWidth: 1,
-                    
-                };
-                    newDataSets.push(charting)
         };
-            console.log(newDataSets[0])
-        myChart.data.datasets.push(newDataSets[0])
-        myChart.update()
+        data.sort(sorting);
+        const months = ["January","February","March","April","May","June","July", "August", "September", "October", "November", "December"]
+        let majorCrimes = ["Assault", "Break and Enter", "Auto Theft", "Robbery", "Theft Over"]
+        
+        let task = {}
+        majorCrimes.forEach(crime =>{
+            task[crime]= [];
+            let filtered = data.filter(results => results.mci_category == crime);
+            months.forEach(month => {
+                let filtered2 = filtered.filter(results => results.month == month);
+                task[crime].push(filtered2.length)
+            });
+        })
+      
+        
+        let trace = [{
+            x: months,
+            y: task.Assault,
+            mode: "scatter",
+            name: "Assault",
+            line: {
+              color: "rgb(60,25,0)",
+              width: 1
+            }
+          },{
+            x: months,
+            y: task["Break and Enter"],
+            mode: "scatter",
+            name: "Break and Enter",
+            line: {
+              color: "rgb(13,15,54)",
+              width: 1
+            }
+          },{
+            x: months,
+            y: task["Auto Theft"],
+            mode: "scatter",
+            name: "Auto Theft",
+            line: {
+              color: "rgb(141,15,22)",
+              width: 1
+            }
+          },{
+            x: months,
+            y: task["Robbery"],
+            mode: "scatter",
+            name: "Robbery",
+            line: {
+              color: "rgb(131,141,22)",
+              width: 1
+            }
+          },{
+            x: months,
+            y: task["Theft Over"],
+            mode: "scatter",
+            name: "Theft Over",
+            line: {
+              color: "rgb(22,151,44)",
+              width: 1
+            }
+          }]
+          let layout= {
+            title: "Major Crime by Month" ,
+            xaxis:{
+              title: "Month"
+            },
+            paper_bgcolor: "#fff",
+            yaxis: {
+              title: "Number of crimes"
+            },
+            legend: {
+              y: 0.5,
+              traceorder:"reversed",
+              font: {size:16},
+              yref:"paper"
+            }
+          };
+          Plotly.newPlot("line1", trace, layout);
     })
-                                 
+};
 
-});
-            
-        // .catch(error => {
-        //     console.error("Error fetching data: ", error )
-        // })
+function buildPieChart(sample){
+    d3.json(url+sample).then((data)=>{
+    const months = ["January","February","March","April","May","June","July", "August", "September", "October", "November", "December"]
+    let majorCrimes = ["Assault", "Break and Enter", "Auto Theft", "Robbery", "Theft Over"];
+    
+    function getRandomNumber(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+      
+      function getRandomRGBString() {
+        const red = getRandomNumber(0, 255);
+        const green = getRandomNumber(0, 255);
+        const blue = getRandomNumber(0, 255);
+        return `rgb(${red},${green},${blue})`;
+      };
 
+    const rgbArray = [];
+    
+    for (let i = 0; i < 12; i++) {
+      rgbArray.push(getRandomRGBString());
+    }
+    let allValues = {}
+    majorCrimes.forEach(crime => {
+        let filtered = data.filter(result => result.mci_category == crime)
+        allValues[crime] = [];
+        months.forEach(month =>{
+            let filtered2 = filtered.filter(results => results.month == month);
+            allValues[crime].push(filtered2.length)
+        });
+    });
+    var trace = [{
+        values: allValues["Assault"],
+        labels: months,
+        type: "pie",
+        name: "Assault",
+        title: "Assault",
+        marker: {
+          colors: rgbArray
+        },
+        domain: {
+          row: 0,
+          column: 0
+        },
+        hoverinfo: "label+percent+name",
+        textinfo: "none"
+       },{
+        values: allValues["Break and Enter"],
+        labels: months,
+        type: "pie",
+        name: "Break and Enter",
+        title: "Break and Enter",
+        marker: {
+          colors: rgbArray
+        },
+        domain: {
+          row: 0,
+          column: 1
+        },
+        hoverinfo: "label+percent+name",
+        textinfo: "none"
+       }, {
+        values: allValues["Auto Theft"],
+        labels: months,
+        type: "pie",
+        name: "Auto Theft",
+        title: "Auto Theft",
+        marker: {
+          colors: rgbArray
+        },
+        domain: {
+          row: 1,
+          column: 0
+        },
+        hoverinfo: "label+percent+name",
+        textinfo: "none"
+       }, {
+        values: allValues["Robbery"],
+        labels: months,
+        type: "pie",
+        name: "Robbery",
+        title: "Robbery",
+        marker: {
+          colors: rgbArray
+        },
+        domain: {
+          row: 1,
+          column: 1
+        },
+        hoverinfo: "label+percent+name",
+        textinfo: "none"
+       }, {values: allValues["Theft Over"],
+       labels: months,
+       type: "pie",
+       name: "Theft Over",
+       title: "Theft Over",
+       marker: {
+         colors: rgbArray
+       },
+       domain: {
+         row: 2,
+         column: 0
+       },
+       hoverinfo: "label+percent+name",
+       textinfo: "none"}]
+       var layout = {
+        title: "Major Crime by Month",
+        height: 800,
+        width: 800,
+        paper_bgcolor: "#fff",
+        grid: {rows: 3, columns: 2}
+      };
+    
+        Plotly.newPlot('pie1', trace, layout)
+    })
+}
 
+function optionChanged(value){
+    buildPieChart(value);
+    buildLineChart(value);
+    year = value
+    console.log(value)
+}
   
+
+
+init()

@@ -52,12 +52,33 @@ select {
     font-family: 'Roboto', sans-serif;
 }
 
-#line1Canvas{
+#linecontainer{
+    position: absolute;
+  top: 300;
+  left: 16px;
+  font-size: 18px;
+}
+
+#line1{
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    top: 8px;
+    left: 16px;
+}
+
+#piecontainer{
+    position: absolute;
+  top: 300;
+  right: 16px;
+  font-size: 18px;
+}
+
+#pie1{
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
 }
-
 #chart3 {
     text-align: center;
 }
