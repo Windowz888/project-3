@@ -33,6 +33,29 @@ def daily_crime_rate(year):
     cursor.close()
     conn.close()
     return jsonify(results)
+
+### avaliable years:
+@app.route('/api/available_years', methods=['GET'])
+def available_years():
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT report_year FROM crime_data ORDER BY report_year")
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify([row[0] for row in results])
+
+#### crime by month report:
+@app.route('/api/monthly_crime_rate/<int:year>', methods=['GET'])
+def monthly_crime_rate(year):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT mci_category, report_month FROM crime_data WHERE report_year = {year} Order BY mci_category, report_month")
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify([{'mci_category':row[0], 'month':row[1]}for row in results])
+
 #### crime by date report 
 @app.route('/api/crime_data_by_type/<string:crime_type>', methods=['GET'])
 def crime_data_by_type(crime_type):
